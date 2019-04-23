@@ -55,8 +55,12 @@ void  freenode(struct astnode *node);
 
 enum token lex(void);
 void unread(char *str,int num);
-void printtoken(enum token token);
+
 
 enum token test_input(void);
 enum token test_input_advance(void);
+
+void printast(struct astnode *node)
+void printtoken(enum token token,int flag);
+
 

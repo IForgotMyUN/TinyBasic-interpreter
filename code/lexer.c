@@ -299,67 +299,7 @@ enum token lexg(void)
 	return token;
 }
 
-void printtoken(enum token token)
-{
-	switch(token)
-	{
-		case eol:
-			printf("end of line\n\n");
-			break;
-		case number:
-			printf("number: %d\n",tokenvalue.num);
-			break;
-			
-		case var:
-			printf("var: %c\n",tokenvalue.num);
-			break;
-			
-		case print:
-			printf("print\n");
-			break;
-			
-		case let:
-			printf("let\n");
-			break;
-		
-		case ret:
-			printf("ret\n");
-			break;
-		
-		case end:
-			printf("end\n");
-			break;
-		
-		case iftoken:
-			printf("if\n");
-			break;
-			
-		case then:
-			printf("then\n");
-			break;
-		
-		case input:
-			printf("input\n");
-			break;
-		
-		case jump:
-			printf("jump\n");
-			break;
-		
-		case call:
-			printf("call\n");
-			break;
-		
-		case none:
-		case empty:
-			printf("empty\n");
-			break;
-			
-		default:
-			printf("%c\n",token);
-			break;
-	}
-}
+
 
 void unread(char *str,int num)
 {

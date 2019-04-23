@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	enum token curtoken=lex();
 	while(curtoken!=EOF)
 	{
-		printtoken(curtoken);
+		printtoken(curtoken,1);
 		curtoken=lex();
 	}
 	rewind(file);

@@ -17,7 +17,9 @@ void parse(void)
 	eofflag=false;
 	while(!eofflag)
 	{
-		parse_line();
+		struct astnode *node=parse_line();
+		printast(node);
+		freenode(node);
 	}
 }
 
@@ -55,7 +57,7 @@ struct astnode *parse_statement(void)
 	struct astnode *right=NULL;
 	enum token token=test_input_advance();
 	printf("parsing statement with token:");
-	printtoken(token);
+	printtoken(token,1);
 	switch(token)
 	{
 		case print:
