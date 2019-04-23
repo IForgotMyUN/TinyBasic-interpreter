@@ -1,0 +1,20 @@
+line ::= (NUMBER)* statement CR | CR
+
+statement ::= 	PRINT expr
+				IF relexp THEN statement
+				GOTO NUMBER
+				INPUT VAR
+				LET VAR = expr
+				GOSUB NUMBER
+				RETURN
+				END
+				
+expr ::= (+|-|e) term ((+|-) expr)*
+
+term ::= factor ((*|/) factor)*
+
+factor ::= VAR | NUMBER | ( expr )
+
+relexp ::= expr relop expr
+
+relop ::= > | = | <
