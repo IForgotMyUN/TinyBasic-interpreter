@@ -13,6 +13,7 @@ enum token lext(void);
 enum token lexr(void);
 enum token lexl(void);
 enum token lexe(void);
+void unread(char *str,int num);
 
 enum token lex(void)
 {
@@ -310,6 +311,7 @@ void unread(char *str,int num)
 }
 
 int tokencount;
+int valuebuffer;
 enum token tokenbuffer;
 
 enum token test_input(void)
@@ -319,7 +321,10 @@ enum token test_input(void)
 	{
 		tokencount++;
 		tokenbuffer=lex();
+		valuebuffer=tokenvalue.num;
 	}
+	else 
+		tokenvalue.num=valuebuffer;
 	return tokenbuffer;
 }
 
@@ -329,9 +334,13 @@ enum token test_input_advance(void)
 	if(tokencount==0)
 	{
 		tokenbuffer=lex();
+		valuebuffer=tokenvalue.num;
 	}
 	else 
+	{
+		tokenvalue.num=valuebuffer;
 		tokencount--;
+	}
 	return tokenbuffer;
 }
 

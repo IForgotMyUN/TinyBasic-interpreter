@@ -24,7 +24,23 @@ int main(int argc, char *argv[])
 		}
 	}
 	else {printf("please specify a fle");exit(0);}
-	printf("lexing:\n");
+	
+	char c=getc(file);
+	while(c!=EOF)
+	{
+		if(c=='\n')
+			lines++;
+		c=getc(file);
+	}
+	nodes=malloc(sizeof(struct astnode*)*lines);
+	if(nodes==NULL)
+	{
+		printf("out of memory\n");
+		exit(0);
+	}
+	
+	rewind(file);
+	printf("\nlexing:\n\n");
 	//printf("%d\n",lex());
 	enum token curtoken=lex();
 	while(curtoken!=EOF)
@@ -32,9 +48,13 @@ int main(int argc, char *argv[])
 		printtoken(curtoken,1);
 		curtoken=lex();
 	}
+	
 	rewind(file);
-	printf("\n\nlexing:\n\n");
+	printf("\nparsing:\n\n");
 	parse();
+	
+	printf("\ninterpret:\n\n");
+	interpret();
 	
 	return 0;
 }

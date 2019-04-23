@@ -14,6 +14,7 @@ struct astnode *newnode(enum token token,struct astnode *left,struct astnode *ri
 	node->id=token;
 	node->left=left;
 	node->right=right;
+	return node;
 }
 
 struct numbernode *newconstant(enum token token,int value)
@@ -26,6 +27,7 @@ struct numbernode *newconstant(enum token token,int value)
 	}
 	node->id=token;
 	node->value=value;
+	return node;
 }
 
 void  freenode(struct astnode *node)
@@ -66,6 +68,10 @@ void printtoken(enum token token,int flag)
 {
 	switch(token)
 	{
+		case EOF:
+			printf("EOF");
+			break;
+			
 		case line:
 			printf("line");
 			break;
@@ -148,11 +154,23 @@ void printast(struct astnode *node)
 {
 	if(node==NULL) return;
 	printf("(");
-	printtoken(node->id,0)
-	printf(" ");
-	printast(node->left);
-	printf(" ");
-	printast(node->right);
+	
+	if(node->id!=var&&node->id!=number)
+	{
+		printtoken(node->id,0);
+		printf(" ");
+		printast(node->left);
+		printf(" ");
+		printast(node->right);
+	}
+	else if(node->id==var)
+	{
+		printf("var: %c",((struct numbernode*)node)->value);
+	}
+	else if(node->id==number)
+	{
+		printf("number: %d",((struct numbernode*)node)->value);
+	}
 	printf(")");
 }
 

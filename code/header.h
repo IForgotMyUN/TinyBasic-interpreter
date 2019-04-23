@@ -44,23 +44,21 @@ struct numbernode
 };
 
 
+extern int linenumber;
+extern int lines;
+extern struct astnode **nodes;
+int jumplocation[9999];
 FILE *file;
 
+void interpret();
 
 void parse(void);
 
-struct astnode *newnode(enum token token,struct astnode *left,struct astnode *right);
-struct numbernode *newconstant(enum token token,int value);
-void  freenode(struct astnode *node);
-
 enum token lex(void);
-void unread(char *str,int num);
-
-
 enum token test_input(void);
 enum token test_input_advance(void);
 
-void printast(struct astnode *node)
+void printast(struct astnode *node);
 void printtoken(enum token token,int flag);
 
 

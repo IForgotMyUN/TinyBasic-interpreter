@@ -3,6 +3,10 @@
 #include "header.h"
 #include <stdbool.h>
 
+struct astnode *newnode(enum token token,struct astnode *left,struct astnode *right);
+struct numbernode *newconstant(enum token token,int value);
+void  freenode(struct astnode *node);
+
 struct astnode *parse_line();
 struct astnode *parse_statement();
 struct astnode *parse_expression();
@@ -18,9 +22,20 @@ void parse(void)
 	while(!eofflag)
 	{
 		struct astnode *node=parse_line();
-		printast(node);
-		freenode(node);
+		if(node)
+		{
+			printast(node);
+			printf("\n");
+			nodes[linenumber]=node;
+			if(node->right)
+			{
+				jumplocation[((struct numbernode *)(node->right))->value]=linenumber;
+				printf("%d %d\n",((struct numbernode *)(node->right))->value,linenumber);
+			}
+			linenumber++;
+		}
 	}
+	linenumber=0;
 }
 
 struct astnode *parse_line(void)
@@ -31,6 +46,7 @@ struct astnode *parse_line(void)
 	enum token token=test_input();
 	if(token==eol)
 	{
+		printf("empty line\n");
 		test_input_advance();
 		return NULL;
 	}
@@ -38,12 +54,14 @@ struct astnode *parse_line(void)
 	{
 		if(test_input()==number)
 		{
-			test_input_advance();
+			
 			right=(struct astnode *)newconstant(number,tokenvalue.num);
+			test_input_advance();
 		}
 		left=parse_statement();
-		if(left&&test_input_advance()==eol)
+		if(left&&(test_input()==eol||test_input()==EOF))
 		{
+			test_input_advance();
 			return newnode(line,left,right);
 		}
 		else return NULL;
@@ -64,7 +82,7 @@ struct astnode *parse_statement(void)
 			left=parse_expression();
 			if(left)
 			{
-				return left;
+				return newnode(print,left,NULL);
 			}
 			else
 			{
@@ -75,8 +93,30 @@ struct astnode *parse_statement(void)
 			break;
 			
 		case iftoken:
-			fprintf(stderr,"if not implemented\n");
-			return NULL;
+			left=parse_relexp();
+			if(left)
+			{
+				token=test_input_advance();
+				if(token==then)
+				{
+					right=parse_statement();
+					if(right)
+					{
+						return newnode(iftoken,left,right);
+					}
+					else return NULL;
+				}
+				else
+				{
+					fprintf(stderr,"expected then after if\n");
+					return NULL;
+				}
+			}
+			else 
+			{
+				fprintf(stderr,"expected comparison after if\n");
+				return NULL;
+			}
 			break;
 			
 		case jump:
@@ -156,6 +196,10 @@ struct astnode *parse_statement(void)
 			return newnode(end,NULL,NULL);
 			break;
 			
+		case EOF:
+			return NULL;
+			break;
+			
 		default:
 			fprintf(stderr,"expected statement at line\n");
 			break;
@@ -180,7 +224,7 @@ struct astnode *parse_expression(void)
 			right=parse_expression();
 			if(right)
 			{
-				return newnode(exp,left,right);
+				return newnode(token,left,right);
 			}
 			else 
 			{
@@ -209,7 +253,7 @@ struct astnode *parse_factor(void)
 			right=parse_factor();
 			if(right)
 			{
-				return newnode(factor,left,right);
+				return newnode(token,left,right);
 			}
 			else 
 			{
