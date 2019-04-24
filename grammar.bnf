@@ -9,7 +9,7 @@
 				RETURN
 				END
 				
-<expr> ::= (+|-|e) <term> [(+|-) <expr>]
+<expr> ::= <term> [(+|-) <expr>]
 
 <term> ::= <factor> [(*|/) <term>]
 

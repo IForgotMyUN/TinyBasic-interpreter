@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
-#include "header.h"
 #include <stdbool.h>
+#include "header.h"
 
 void evaluate(struct astnode *node);
 int exp_eval(struct astnode *node);
@@ -18,11 +18,18 @@ int vartable[26];
 
 bool endflag=false;
 
+
+/*The interpret functions interprets the entire array of AST's.
+It will stop when:
+	-the last line has been interpreted.
+	-an end function has been executed.
+	-an empty node has been encountered (fail state).
+The lines are stored in the nodes array.*/
+
 void interpret()
 {
 	while(linenumber<lines&&!endflag)
 	{
-		printf("interpret\n");
 		if(nodes[linenumber]==NULL)
 		{
 			printf("nodes==NULL\n");
@@ -33,6 +40,9 @@ void interpret()
 	}
 }
 
+
+/*The evaluate function evaluates a non numerical expression.*/
+
 void evaluate(struct astnode *node)
 {
 	switch(node->id)
@@ -42,22 +52,18 @@ void evaluate(struct astnode *node)
 			break;
 		
 		case let:
-			printf("let\n");
 			vartable[varloc(node->left)]=exp_eval(node->right);
 			break;
 		
 		case print:
-			printf("print\n");
-			printf("%c\n",exp_eval(node->left));
+			printf("%c",exp_eval(node->left));
 			break;
 		
 		case input:
-			printf("input\n");
 			vartable[varloc(node->left)]=getchar();
 			break;
 		
 		case iftoken:
-			printf("if\n");
 			if(exp_eval(node->left))
 			{
 				evaluate(node->right);
@@ -65,29 +71,30 @@ void evaluate(struct astnode *node)
 			break;
 		
 		case jump:
-			printf("jump\n");
 			linenumber=jumplocation[exp_eval(node->left)];
 			linenumber--;
 			break;
 		
 		case call:
-			printf("call\n");
 			callstack[sp++]=linenumber;
 			linenumber=jumplocation[exp_eval(node->left)];
 			linenumber--;
 			break;
 		
 		case ret:
-			printf("ret\n");
 			linenumber=callstack[--sp];
 			break;
 		
 		case end:
-			printf("end\n");
 			endflag=true;
 			break;
 	}
 }
+
+
+/*The expression evaluate function evaluates a numerical expression.
+The function returns the integer value asssociated with the expression
+at the time of evaluation.*/
 
 int exp_eval(struct astnode *node)
 {
@@ -133,6 +140,8 @@ int exp_eval(struct astnode *node)
 	return value;
 }
 
+
+//varloc gives the index in the variable table based on a variable node.
 int varloc(struct astnode *node)
 {
 	char symbol=((struct numbernode*)node)->value;

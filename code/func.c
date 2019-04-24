@@ -1,7 +1,11 @@
 #include <string.h>
 #include <stdlib.h>
-#include "header.h"
 #include <stdbool.h>
+#include "header.h"
+
+
+/*The new node function generates a new node in the AST.
+First new memory is allocated then the different parts are assigned*/
 
 struct astnode *newnode(enum token token,struct astnode *left,struct astnode *right)
 {
@@ -17,6 +21,10 @@ struct astnode *newnode(enum token token,struct astnode *left,struct astnode *ri
 	return node;
 }
 
+
+/*The new node function generates a new terminal node with a value in the AST.
+First new memory is allocated then the different parts are assigned*/
+
 struct numbernode *newconstant(enum token token,int value)
 {
 	struct numbernode *node=malloc(sizeof(struct numbernode));
@@ -29,6 +37,11 @@ struct numbernode *newconstant(enum token token,int value)
 	node->value=value;
 	return node;
 }
+
+
+/*The free node function deallocates a node in the AST.
+The freeing of the branches is performed based on the type of node.
+The function is implemented as a switch statement with fallthrough.*/
 
 void  freenode(struct astnode *node)
 {
@@ -63,6 +76,10 @@ void  freenode(struct astnode *node)
 			printf("bad node %d during dealloc\n",node->id);
 	}
 }
+
+
+/*The print token function prints a token.
+If the flag is set it will also print a newline.*/
 
 void printtoken(enum token token,int flag)
 {
@@ -149,6 +166,12 @@ void printtoken(enum token token,int flag)
 	if(flag) 
 		printf("\n");
 }
+
+
+/*The print AST function prints an AST as a lisp style list.
+If a node is empty or NULL there will be no effect.
+If a node is a variable or a number only it's value will be printed.
+Otherwise the type token will be printed followed by the children.*/
 
 void printast(struct astnode *node)
 {

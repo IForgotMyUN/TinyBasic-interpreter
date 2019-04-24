@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "header.h"
 #include <ctype.h>
+#include "header.h"
 
 void getvalue(char c);
 enum token lexp(void);
@@ -15,9 +15,17 @@ enum token lexl(void);
 enum token lexe(void);
 void unread(char *str,int num);
 
+
+/*The lex function tokenizes the input string.
+Space and tab are ignored.
+If a read letter is the start of a keyword it will check for the keyword.
+Other letters are returned as variables.
+Any punctuation and mathematical symbols are returned as is.
+Numbers are returned with their value.
+When the end of file is encountered the EOF flag will be set for the parser.*/
+
 enum token lex(void)
 {
-	//printf("start lex\n");
 	enum token token;
 	char c;
 	do
@@ -31,7 +39,6 @@ enum token lex(void)
 	}
 	else if(isdigit(c))
 	{
-		//printf("digit\n");
 		token=number;
 		getvalue(c);
 	}
@@ -85,6 +92,8 @@ enum token lex(void)
 	return token;
 }
 
+
+//gets the numerical value of a string of numbers
 void getvalue(char c)
 {
 	int temp=c-'0';
@@ -96,6 +105,11 @@ void getvalue(char c)
 	ungetc(c,file);
 	tokenvalue.num=temp;
 }
+
+
+/*The various lex* functions check for keywords.
+If the string is a keyword that keyword token will be returned.
+Otherwise the string will be unread an interpreted as a variable.*/
 
 enum token lexp(void)
 {
@@ -301,6 +315,8 @@ enum token lexg(void)
 }
 
 
+/*The unread function returns an string to the file buffer.
+It returns all characters one by one starting at the last character.*/
 
 void unread(char *str,int num)
 {
@@ -310,13 +326,18 @@ void unread(char *str,int num)
 	}
 }
 
+
+/*The token test function both return a token.
+If there is a token in the buffer that will be returned.
+Otherwise the function wil get a new token.
+The advance function also reduce the tokencount if the buffer was full*/
+
 int tokencount;
 int valuebuffer;
 enum token tokenbuffer;
 
 enum token test_input(void)
 {
-	//printf("testing input\n");
 	if(tokencount==0)
 	{
 		tokencount++;
@@ -330,7 +351,6 @@ enum token test_input(void)
 
 enum token test_input_advance(void)
 {
-	//printf("testing input with step\n");
 	if(tokencount==0)
 	{
 		tokenbuffer=lex();

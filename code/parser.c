@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
-#include "header.h"
 #include <stdbool.h>
+#include <stdio.h>
+#include "header.h"
 
 struct astnode *newnode(enum token token,struct astnode *left,struct astnode *right);
 struct numbernode *newconstant(enum token token,int value);
@@ -16,6 +17,18 @@ struct astnode *parse_relexp();
 
 bool eofflag=false;
 
+/*The parsing is implemented as a recursive descent parser.
+NULL is passed when either the parsing fails or an option isn't present.
+NULL statements are not passed to the interpreter
+The parsed grammar is represented in BNF in the grammar.bnf file*/
+
+
+/*The parse function parses the entire file.
+While the end of the file hasn't been reached each line will be parsed.
+If the line is valid it will get added to an array of lines to later interpret.
+If the line contains a linenumber then the line is stored in an array.
+This array will later be used as a jumptable*/
+
 void parse(void)
 {
 	eofflag=false;
@@ -24,13 +37,15 @@ void parse(void)
 		struct astnode *node=parse_line();
 		if(node)
 		{
-			printast(node);
-			printf("\n");
+			if(parseflag)
+			{
+				printast(node);
+				printf("\n");
+			}
 			nodes[linenumber]=node;
 			if(node->right)
 			{
 				jumplocation[((struct numbernode *)(node->right))->value]=linenumber;
-				printf("%d %d\n",((struct numbernode *)(node->right))->value,linenumber);
 			}
 			linenumber++;
 		}
@@ -38,15 +53,19 @@ void parse(void)
 	linenumber=0;
 }
 
+
+/*The parse line function parses one individual line.
+If the line is empty a NULL pointer will be returned indicating no valid return.
+If the line contains a line number this is parsed,
+In any case it will check for a valid statement*/
+
 struct astnode *parse_line(void)
 {
-	printf("parsing line\n");
 	struct astnode *left=NULL;
 	struct astnode *right=NULL;
 	enum token token=test_input();
 	if(token==eol)
 	{
-		printf("empty line\n");
 		test_input_advance();
 		return NULL;
 	}
@@ -54,10 +73,10 @@ struct astnode *parse_line(void)
 	{
 		if(test_input()==number)
 		{
-			
 			right=(struct astnode *)newconstant(number,tokenvalue.num);
 			test_input_advance();
 		}
+		
 		left=parse_statement();
 		if(left&&(test_input()==eol||test_input()==EOF))
 		{
@@ -68,14 +87,25 @@ struct astnode *parse_line(void)
 	}
 }
 
+
+/*The parse statement function will check for a valid statement.
+The options are:
+	-print: 		takes an expression to print.
+	-if: 			takes a relative expression and a following statement.
+	-goto: 			takes a number to jump to.
+	-input: 		takes a variable which will be loaded with the input.
+	-assignement:	takes a variable and an expression.
+	-gosub:			takes a number to call.
+	-return:		takes no arguments and returns to previous function.
+	-end:			takes no arguments and ends the program.*/
+	
 struct astnode *parse_statement(void)
 {
 	
 	struct astnode *left=NULL;
 	struct astnode *right=NULL;
 	enum token token=test_input_advance();
-	printf("parsing statement with token:");
-	printtoken(token,1);
+
 	switch(token)
 	{
 		case print:
@@ -207,9 +237,17 @@ struct astnode *parse_statement(void)
 	return NULL;
 }
 
+
+/*The parse expression function parses a numerical expression.
+An expression either contains: 
+	-a factor.
+	-a factor followed by an add sign followed by an other expression.
+	-a factor followed by an subtract sign followed by an other expression.
+Invalid expressions fail if there is no valid factor,
+otherwise this left factor is returned instead.*/
+
 struct astnode *parse_expression(void)
 {
-	printf("parsing expression\n");
 	struct astnode *left=NULL;
 	struct astnode *right=NULL;
 	enum token token;
@@ -236,9 +274,17 @@ struct astnode *parse_expression(void)
 	return NULL;
 }
 
+
+/*The parse factor function parses a numerical factor.
+A factor either contains: 
+	-a term.
+	-a term followed by multiply followed by an other factor.
+	-a term followed by division followed by an other factor.
+Invalid factors fail if there is no valid term,
+otherwise this left term is returned instead.*/
+
 struct astnode *parse_factor(void)
 {
-	printf("parsing factor\n");
 	struct astnode *left=NULL;
 	struct astnode *right=NULL;
 	enum token token;
@@ -265,9 +311,16 @@ struct astnode *parse_factor(void)
 	return NULL;
 }
 
+
+/*The parse term function parses a numerical term.
+An term either contains: 
+	-a number.
+	-a variable.
+	-an expression between parentheses.
+Any invalidities in the brackets results in a failure*/
+
 struct astnode *parse_term(void)
 {
-	printf("parsing term\n");
 	struct astnode *node;
 	enum token token;
 	
@@ -297,6 +350,12 @@ struct astnode *parse_term(void)
 	else return NULL;
 }
 
+/*The parse relative expression function parses a comparison.
+An relative expression either contains: 
+	-an expression followed by an equal sign followed by an other expression.
+	-an expression followed by an larger sign followed by an other expression.
+	-an expression followed by an smaller sign followed by an other expression.
+Any invalidities in either expressionresults in a failure*/
 
 struct astnode *parse_relexp()
 {

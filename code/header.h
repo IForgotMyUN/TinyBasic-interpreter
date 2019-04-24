@@ -43,7 +43,8 @@ struct numbernode
 	int value;
 };
 
-
+extern _Bool parseflag;
+extern _Bool lexflag;
 extern int linenumber;
 extern int lines;
 extern struct astnode **nodes;

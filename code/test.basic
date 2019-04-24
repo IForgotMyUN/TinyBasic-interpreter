@@ -1,6 +1,0 @@
-GOSUB 10
-PRINT A
-END 
-
-10 LET A = 48+(4/(2+1-2))*2
-RETURN
